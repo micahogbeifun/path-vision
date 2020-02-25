@@ -1,38 +1,206 @@
 .App {
+  height: 100vh;
+  max-width: 100%;
+  position: relative;
+  overflow: auto;
+}
+
+.info-section {
+  width: 100%;
+  padding: 20px 15px;
+}
+
+.info-item {
+  display: inline-block;
+  margin-right: 15px;
+  display: inline-flex;
+}
+
+.info-icon ion-icon,
+.grid-node.start ion-icon,
+.grid-node.target ion-icon {
+  font-size: 20px;
+}
+
+.info-icon.regular ion-icon,
+.grid-node.start ion-icon,
+.grid-node.target ion-icon {
+  color: #ff805e;
+}
+.info-icon,
+.info-text {
+  margin-right: 5px;
+}
+
+.algorithm-info {
   text-align: center;
+  text-transform: capitalize;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+.algorithm-info span {
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.tut-list {
+  list-style: none;
+  margin-left: 10px;
+  font-weight: 500px;
+}
+.tut-list .tut span {
+  background-color: #a02100;
+  min-height: 5px;
+  min-width: 5px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  margin: 0 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.tut {
+  display: inline-block;
+}
+
+.grid {
+  width: 100%;
+  padding: 10px;
+}
+.grid-cell {
+  height: 24px;
+  width: 24px;
+  border: 1px solid #7ce7ab;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+.grid-cell.start,
+.grid-cell.target,
+.grid-cell.weight,
+.grid-cell.obstacle {
+  background-color: #fff;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 150% 150%;
+  animation-name: movingNode;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+.grid-cell.wall,
+.grid-cell.visited,
+.grid-cell.animating,
+.grid-cell.multiple {
+  animation-name: movingNode;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+.grid-cell.start {
+  background-image: url("/images/start_trans.png");
+}
+.grid-cell.target {
+  background-image: url("/images/target_trans.png");
+}
+.grid-cell.wall {
+  background: #a02100;
+}
+.grid-cell.visited {
+  animation-name: animatedNode;
+  animation-duration: 2s;
+}
+.grid-cell.multiple {
+  animation-name: animatedNodeMultiple;
+  animation-duration: 2s;
+}
+.grid-cell.animating {
+  animation-duration: 1.5s;
+  background-color: #c5f637;
+}
+.grid-cell.weight {
+  background-size: 120% 120%;
+  animation-duration: 0.3s;
+  background-image: url("/images/weighted_trans.png");
+}
+
+.grid-cell.obstacle {
+  background-image: url("/images/obstacle_trans.png");
+}
+
+@keyframes movingNode {
+  0% {
+    transform: scale(0.5);
+    -webkit-transform: scale(0.5);
+    -moz-transform: scale(0.5);
+    -ms-transform: scale(0.5);
+    -o-transform: scale(0.5);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes animatedNode {
+  0% {
+    transform: scale(0.3);
+    background-color: rgba(0, 94, 41, 0.75);
+    border-radius: 100%;
   }
-  to {
-    transform: rotate(360deg);
+
+  50% {
+    background-color: rgba(59, 187, 115, 0.75);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: rgba(0, 94, 41, 0.75);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgba(59, 187, 115, 0.75);
+  }
+}
+
+@keyframes animatedNodeMultiple {
+  0% {
+    transform: scale(0.3);
+    background-color: rgba(255, 98, 57, 0.75);
+    border-radius: 100%;
+  }
+
+  50% {
+    background-color: rgba(255, 160, 135, 0.75);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: rgba(255, 98, 57, 0.75);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgba(255, 160, 135, 0.75);
   }
 }

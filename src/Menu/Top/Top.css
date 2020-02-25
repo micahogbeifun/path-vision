@@ -1,0 +1,55 @@
+.Top {
+  display: flex;
+  height: 48px;
+  align-items: center;
+  background: #2ecc73;
+}
+.Top .top-header {
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  padding: 10px;
+  text-transform: capitalize;
+  letter-spacing: 2px;
+}
+
+.toggle-icon ion-icon,
+.toggle-icon-close ion-icon {
+  padding: 5px;
+  font-size: 30px;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+  -webkit-transition: color 0.3s ease-in-out;
+  -moz-transition: color 0.3s ease-in-out;
+  -ms-transition: color 0.3s ease-in-out;
+  -o-transition: color 0.3s ease-in-out;
+}
+
+.toggle-icon ion-icon:hover,
+.toggle-icon-close ion-icon:hover {
+  color: #ff805e;
+}
+
+.Top .toggle-icon,
+.Top .toggle-icon-close {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .Top .top-header {
+    font-size: 14px;
+    padding: 5px;
+  }
+}
+
+@media (max-width: 869px) {
+  .Top .menu-option,
+  .Top .top-header {
+    display: none;
+  }
+  .Top .toggle-icon {
+    display: block;
+  }
+}
