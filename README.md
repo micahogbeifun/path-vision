@@ -2,7 +2,7 @@
 
 A software that visualizes the search process and the shortest path between nodes on a grid.</br></br>
 Users can setup the grid however they wish, add obstacles and walls etc. then watch the software find the shortest path.</br>
-
+</br></br>
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
