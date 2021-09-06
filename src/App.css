@@ -113,10 +113,10 @@
 }
 
 .grid-cell.start {
-  background-image: url("/images/start_trans.png");
+  background-image: url("images/start_trans.png");
 }
 .grid-cell.target {
-  background-image: url("/images/target_trans.png");
+  background-image: url("images/target_trans.png");
 }
 .grid-cell.wall {
   background: #a02100;
@@ -136,11 +136,11 @@
 .grid-cell.weight {
   background-size: 120% 120%;
   animation-duration: 0.3s;
-  background-image: url("/images/weighted_trans.png");
+  background-image: url("images/weighted_trans.png");
 }
 
 .grid-cell.obstacle {
-  background-image: url("/images/obstacle_trans.png");
+  background-image: url("images/obstacle_trans.png");
 }
 
 @keyframes movingNode {

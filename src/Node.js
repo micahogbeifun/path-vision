@@ -22,7 +22,10 @@ const Node = props => {
     addingWeight,
     setStartCell,
     setEndCell,
-    setObstacleCell
+    setObstacleCell,
+    setAdding,
+    setWall,
+    
   } = props;
   const nodeRef = useRef(null);
   if (!uniqueRef) {
@@ -32,36 +35,42 @@ const Node = props => {
     <td
       className={props.class}
       ref={nodeRef}
-      onMouseDown={
-        start
-          ? startMoving
-          : end
-          ? targetMoving
-          : addObstacle
-          ? obstacleMoving
-          : wall
-          ? () => toggleWall(row, col)
-          : weight
-          ? () => toggleWeight(row, col)
-          : null
-      }
-      onMouseOver={() => {
-        if (movingStart) {
-          setStartCell(row, col);
-        }
-        if (movingTarget) {
-          setEndCell(row, col);
-        }
-        if (movingObstacle) {
-          setObstacleCell(row, col);
-        }
-        if (addingWall) {
-          toggleWall(row, col);
-        }
-        if (addingWeight) {
-          toggleWeight(row, col);
-        }
+      // onMouseDown={
+      //   start
+      //     ? startMoving
+      //     : end
+      //     ? targetMoving
+      //     : addObstacle
+      //     ? obstacleMoving
+      //     : wall
+      //     ? () => toggleWall(row, col)
+      //     : weight
+      //     ? () => toggleWeight(row, col)
+      //     : null
+      // }
+      onMouseDown={() => setAdding({row, col})}
+      onMouseOver={(e) => {
+        // console.log(e.target, 'onDragOver')
+        setWall({row, col})
       }}
+      onMouseUp={() => setAdding({row, col, turnOff: true})}
+      // onMouseOver={() => {
+      //   if (movingStart) {
+      //     setStartCell(row, col);
+      //   }
+      //   if (movingTarget) {
+      //     setEndCell(row, col);
+      //   }
+      //   if (movingObstacle) {
+      //     setObstacleCell(row, col);
+      //   }
+      //   if (addingWall) {
+      //     toggleWall(row, col);
+      //   }
+      //   if (addingWeight) {
+      //     toggleWeight(row, col);
+      //   }
+      // }}
     ></td>
   );
 };

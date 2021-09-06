@@ -6,7 +6,7 @@ import "./App.css";
 import Node from "./Node";
 import {
   dijkstra,
-  getOrderVisited
+  getOrderVisited,
 } from "../src/pathfindingAlgorithms/Dijkstra";
 
 class App extends Component {
@@ -32,10 +32,10 @@ class App extends Component {
       { text: "untouched node", icon: "ellipse-outline", color: ["#7ce7ab"] },
       { text: "touched nodes", icon: "ellipse", color: ["#009842", "#FF6239"] },
       { text: "shortest-path node", icon: "ellipse", color: ["#C5F637"] },
-      { text: "wall node", icon: "ellipse", color: ["#A02100"] }
+      { text: "wall node", icon: "ellipse", color: ["#A02100"] },
     ],
     algorithmInfo: {
-      "dijkstra's algorithms": { weighted: true, shortest: true }
+      "dijkstra's algorithms": { weighted: true, shortest: true },
       // "a* search": { weighted: true, shortest: true },
       // "greedy best-first search": { weighted: true, shortest: false },
       // "swarm algorithm": { weighted: true, shortest: false },
@@ -52,7 +52,11 @@ class App extends Component {
     endCellDefault: { row: 4, col: 40 },
     movingStart: false,
     movingTarget: false,
-    movingObstacle: false
+    movingObstacle: false,
+    mouseDown: false,
+    currentNode: {},
+    addingWall: false,
+    target: {},
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -68,8 +72,20 @@ class App extends Component {
     this.initialiseGrid();
     document.addEventListener("keydown", this._handleKeyDown);
     document.addEventListener("keyup", this._handleKeyUp);
-    this.myRef.current.addEventListener("mousedown", this._handleMouseDown);
-    this.myRef.current.addEventListener("mouseup", this._handleMouseUp);
+    // // this.myRef.current.addEventListener("mousedown", this._handleMouseDown);
+    // this.myRef.current.addEventListener("mouseup", this._handleMouseUp);
+    // this.myRef.current.addEventListener("mousever", (e) => {
+    //   if (e.target.className.split(" ").includes("grid-cell") && this.state.mouseDown) {
+    //     if (this)
+    //   }
+    // });
+    // this.myRef.current.addEventListener("mousedown", (e) => {
+    //   if (e.target.className.split(" ").includes("grid-cell")) {
+    //     console.log(e.target, 't');
+    //     this.setState({mouseDown: true})
+    //   }
+    // });
+    // this.myRef.current.removeEventListener("mouseup", this._handleMouseUp);
   };
   componentWillUnmount = () => {
     document.removeEventListener("keydown", this._handleKeyDown);
@@ -77,23 +93,30 @@ class App extends Component {
     this.myRef.current.removeEventListener("mousedown", this._handleMouseDown);
     this.myRef.current.removeEventListener("mouseup", this._handleMouseUp);
   };
-  _handleKeyDown = event => {
+
+  dragStart = (e) => {
+    console.log(e, "e");
+    if (e.target.className.split(" ").includes("grid-cell")) {
+      console.log(e.target);
+    }
+  };
+  _handleKeyDown = (event) => {
     if (event.keyCode === 87 && !this.state.weightKey) {
       this.setState({ weightKey: true });
     }
   };
-  _handleKeyUp = event => {
+  _handleKeyUp = (event) => {
     if (event.keyCode === 87 && this.state.weightKey) {
       this.setState({ weightKey: false });
     }
   };
-  _handleMouseDown = event => {
+  _handleMouseDown = (event) => {
     event.preventDefault();
     if (!this.state.mouseDown) {
       this.setState({ mouseDown: true });
     }
   };
-  _handleMouseUp = event => {
+  _handleMouseUp = (event) => {
     event.preventDefault();
     if (this.state.mouseDown) {
       this.setState({ mouseDown: false });
@@ -101,30 +124,30 @@ class App extends Component {
     this.nothingMoving();
   };
 
-  setAlgorithmHandler = algorithm => {
+  setAlgorithmHandler = (algorithm) => {
     this.setState({ algorithm });
   };
-  setMazeHandler = maze => {
+  setMazeHandler = (maze) => {
     this.setState({ maze });
   };
-  setSpeedHandler = speed => {
+  setSpeedHandler = (speed) => {
     this.setState({ speed });
   };
 
-  setEnvisionHandler = envision => {
-    this.setState(prevState => {
+  setEnvisionHandler = (envision) => {
+    this.setState((prevState) => {
       return { envision: !prevState.envision };
     });
     this.showEnvisionHandler();
   };
 
   showSideMenuHandler = () => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { sideMenu: !prevState.sideMenu };
     });
   };
 
-  editBoard = item => {
+  editBoard = (item) => {
     switch (item) {
       case "obstacle":
         this.obstacleHandler();
@@ -159,15 +182,15 @@ class App extends Component {
         (this.state.endCell.row === 10 && this.state.endCell.col === 25));
     if (notOccupied && !initial) {
       gridTable[10][25].isObstacle = true;
-      this.setState(prevState => {
+      this.setState((prevState) => {
         if (prevState.obstacle)
-          gridTable.forEach(row =>
-            row.forEach(node => (node.isObstacle = false))
+          gridTable.forEach((row) =>
+            row.forEach((node) => (node.isObstacle = false))
           );
         return {
           gridTable,
           obstacle: !prevState.obstacle,
-          obstacleCell: { row: 10, col: 25 }
+          obstacleCell: { row: 10, col: 25 },
         };
       });
     }
@@ -197,7 +220,7 @@ class App extends Component {
       </li>
     );
   });
-  setRef = node => {
+  setRef = (node) => {
     const { gridTable } = this.state;
     if (!gridTable[node.row][node.col].ref) {
       gridTable[node.row][node.col].ref = node.ref;
@@ -205,19 +228,19 @@ class App extends Component {
     }
   };
   showEnvisionHandler = () => {
-    let gridTable = [...this.state.gridTable.map(row => row.slice(0))];
+    let gridTable = [...this.state.gridTable.map((row) => row.slice(0))];
 
     this.setState({ ordered: null });
-    gridTable.forEach(row =>
-      row.forEach(node => {
+    gridTable.forEach((row) =>
+      row.forEach((node) => {
         node.ref.current.classList.remove("visited", "animating", "multiple");
         node.previousNode = null;
         node.distance = Infinity;
       })
     );
     let startNode, targetNode, obstacleNode;
-    gridTable.forEach(row =>
-      row.forEach(node => {
+    gridTable.forEach((row) =>
+      row.forEach((node) => {
         if (node.isStart) startNode = node;
         if (node.isTarget) targetNode = node;
         if (node.isObstacle) obstacleNode = node;
@@ -241,8 +264,8 @@ class App extends Component {
         this.setState({ finalNode: false, algoNodes: null });
       if (this.state.multiple) {
         const { endCell } = this.state;
-        gridTable.forEach(row =>
-          row.forEach(node => {
+        gridTable.forEach((row) =>
+          row.forEach((node) => {
             if (node.row === endCell.row && node.col === endCell.col)
               node.isTarget = true;
             else node.isTarget = false;
@@ -259,8 +282,8 @@ class App extends Component {
     if (!this.state.searching) {
       let first = nodes[index],
         second = nodes[index + 1];
-      gridTable.forEach(row =>
-        row.forEach(node => {
+      gridTable.forEach((row) =>
+        row.forEach((node) => {
           if (node.row === second.row && node.col === second.col) {
             node.isTarget = true;
           } else {
@@ -271,8 +294,8 @@ class App extends Component {
       this.setState({ gridTable });
       this.handleAlgorithm(gridTable, first, second);
       gridTable = this.state.gridTable;
-      gridTable.forEach(row =>
-        row.forEach(node => {
+      gridTable.forEach((row) =>
+        row.forEach((node) => {
           //node.ref.current.classList.remove("visited", "multiple");
           node.previousNode = null;
           node.distance = Infinity;
@@ -285,7 +308,7 @@ class App extends Component {
   handleAlgorithm = (gridTable, startNode, targetNode) => {
     let dijkstraArray = dijkstra(gridTable, startNode, targetNode);
     let ordered = getOrderVisited(targetNode);
-    gridTable.forEach(row => row.forEach(node => (node.visited = false)));
+    gridTable.forEach((row) => row.forEach((node) => (node.visited = false)));
     this.setState({ gridTable, ordered });
 
     this.animate(dijkstraArray, ordered);
@@ -309,7 +332,7 @@ class App extends Component {
     //   });
     //   this.animatePath(0);
     // }
-    let target = algoArray.findIndex(item => item.isTarget);
+    let target = algoArray.findIndex((item) => item.isTarget);
     const { speed } = this.state;
     let timeout = speed === "fast" ? 10 : speed === "average" ? 50 : 100;
     for (let i = 0; i <= algoArray.length; i++) {
@@ -384,7 +407,7 @@ class App extends Component {
               ? true
               : false,
           isTarget:
-            i === endCellDefault.row && j === endCellDefault.col ? true : false
+            i === endCellDefault.row && j === endCellDefault.col ? true : false,
         });
       }
 
@@ -393,14 +416,9 @@ class App extends Component {
     this.setState({ gridTable, gridTableOriginal: gridTable });
   };
 
-  clearBoardHandler = type => {
-    let {
-      startCell,
-      endCell,
-      startCellDefault,
-      endCellDefault,
-      obstacleCell
-    } = this.state;
+  clearBoardHandler = (type) => {
+    let { startCell, endCell, startCellDefault, endCellDefault, obstacleCell } =
+      this.state;
     let gridTable = this.state.gridTable.slice(0);
     if (type === "all") {
       //this.initialiseGrid();
@@ -411,8 +429,8 @@ class App extends Component {
       if (this.state.obstacle) this.editBoard("obstacle");
     }
 
-    gridTable.forEach(row =>
-      row.forEach(node => {
+    gridTable.forEach((row) =>
+      row.forEach((node) => {
         if (type === "all") {
           const control = ["col", "row", "isStart", "isTarget", "ref"];
           for (let key in node) {
@@ -440,13 +458,13 @@ class App extends Component {
       gridTable,
       startCell,
       endCell,
-      obstacleCell
+      obstacleCell,
     });
   };
   clearPathHandler = () => {
     const { gridTable } = this.state;
-    gridTable.forEach(row =>
-      row.forEach(node =>
+    gridTable.forEach((row) =>
+      row.forEach((node) =>
         node.ref.current.classList.remove("visited", "animating", "multiple")
       )
     );
@@ -498,9 +516,9 @@ class App extends Component {
     }
   };
 
-  clearKey = key => {
+  clearKey = (key) => {
     let gridTable = this.state.gridTable.slice(0);
-    gridTable.forEach(row => row.forEach(col => (col[key] = false)));
+    gridTable.forEach((row) => row.forEach((col) => (col[key] = false)));
     return gridTable;
   };
 
@@ -538,6 +556,68 @@ class App extends Component {
     }
   };
 
+  setAdding = ({ row, col, turnOff }) => {
+    console.log("this.setAdding", row, col);
+    if (turnOff)
+      return this.setState({
+        addingWall: false,
+        mouseDown: false,
+        weightKey: false,
+        movingTarget: false,
+        movingObstacle: false
+      });
+    let gridTable = this.state.gridTable.slice(0);
+    if (gridTable[row][col].isTarget) {
+      this.setState({ movingTarget: true, target: { col, row }, mouseDown: true });
+      console.log( 'movingTarget')
+      return;
+    }
+    if (gridTable[row][col].isObstacle) {
+      this.setState({ movingObstacle: true, obstacleCell: { col, row }, mouseDown: true });
+      console.log( 'movingObstacle')
+      return;
+    }
+    let addingWall =
+      !gridTable[row][col][this.state.weightKey ? "isWeight" : "isWall"];
+    gridTable[row][col][this.state.weightKey ? "isWeight" : "isWall"] =
+      addingWall;
+    this.setState({ addingWall, gridTable, mouseDown: true });
+    console.log(this.state.addingWall, "aw");
+  };
+
+  setWall = ({ row, col }) => {
+    if (!this.state.mouseDown) return;
+    const gridTable = this.state.gridTable.slice(0),
+      target = { ...this.state.target },
+      obstacleCell = this.state.obstacleCell;
+    if (this.state.movingTarget) {
+      console.log('movingt')
+      gridTable[row][col].isTarget = true;
+      gridTable[row][col].isWall = false;
+      gridTable[row][col].isWeight = false;
+      gridTable[row][col].isObstacle = false;
+      if (target.row) gridTable[target.row][target.col].isTarget = false;
+      return this.setState({ gridTable, target: { col, row } });
+    }
+    if (this.state.movingObstacle) {
+      console.log('movingobt')
+      gridTable[row][col].isObstacle = true;
+      gridTable[row][col].isWall = false;
+      gridTable[row][col].isWeight = false;
+      gridTable[row][col].isTarget = false;
+      if (obstacleCell.row) gridTable[obstacleCell.row][obstacleCell.col].isObstacle = false;
+      return this.setState({ gridTable, obstacleCell: { col, row } });
+    }
+    gridTable[row][col][this.state.weightKey ? "isWeight" : "isWall"] =
+      this.state.addingWall;
+    if (this.state.weightKey) gridTable[row][col].isWall = false;
+    if (gridTable[row][col].isWall) gridTable[row][col].isWeight = false;
+    if (gridTable[row][col].isWeight) gridTable[row][col].isWall = false;
+    console.log("aw", row, col, gridTable[row][col]);
+    this.setState({ gridTable });
+    // }
+  };
+
   render() {
     const {
       algorithm,
@@ -555,7 +635,7 @@ class App extends Component {
       weightKey,
       mouseDown,
       addingWall,
-      addingWeight
+      addingWeight,
     } = this.state;
 
     let infoHeader;
@@ -605,11 +685,11 @@ class App extends Component {
                     let weight = !start && !end && mouseDown && weightKey;
 
                     const columnClass = `grid-cell${
-                      obstacle && addObstacle
+                      obstacle && node.isObstacle
                         ? " obstacle"
                         : start
                         ? " start"
-                        : end
+                        : node.isTarget
                         ? " target"
                         : node.isWall
                         ? " wall"
@@ -644,6 +724,8 @@ class App extends Component {
                         setObstacleCell={this.setObstacleCell}
                         addingWall={addingWall}
                         addingWeight={addingWeight}
+                        setAdding={this.setAdding}
+                        setWall={this.setWall}
                       ></Node>
                     );
                   })}
