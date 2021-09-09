@@ -72,9 +72,8 @@ class App extends Component {
     this.initialiseGrid();
     document.addEventListener("keydown", this._handleKeyDown);
     document.addEventListener("keyup", this._handleKeyUp);
-    document.addEventListener("mouseup", () => {
-      if (this.state.mouseDown) this.setState({ mouseDown: false });
-    });
+    document.addEventListener("mouseup", this._handleMouseUp);
+    // document.addEventListener("mousedown", this._handleMouseDown);
   };
   componentWillUnmount = () => {
     document.removeEventListener("keydown", this._handleKeyDown);
@@ -595,7 +594,6 @@ class App extends Component {
   };
 
   setWall = ({ row, col }) => {
-    if (!this.state.mouseDown) return;
     const gridTable = this.state.gridTable.slice(0),
       target = { ...this.state.target },
       startCell = { ...this.state.startCell },
