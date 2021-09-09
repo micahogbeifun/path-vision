@@ -48,10 +48,9 @@ const Options = props => {
     showSideMenuHandler,
     editBoard,
     envision,
-    obstacle
+    obstacle: propObstacle,
+    envision: propEnvision
   } = props;
-  let propEnvision = envision,
-    propObstacle = obstacle;
   return (
     <div className={props.class}>
       <span

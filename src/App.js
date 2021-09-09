@@ -254,9 +254,14 @@ class App extends Component {
         const { endCell } = this.state;
         gridTable.forEach((row) =>
           row.forEach((node) => {
-            if (node.row === endCell.row && node.col === endCell.col)
+            if (
+              !this.state.target.row &&
+              node.row === endCell.row &&
+              node.col === endCell.col
+            ) {
               node.isTarget = true;
-            else node.isTarget = false;
+            }
+            // else node.isTarget = false;
           })
         );
         this.setState({ gridTable, multiple: false });
