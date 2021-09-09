@@ -72,20 +72,9 @@ class App extends Component {
     this.initialiseGrid();
     document.addEventListener("keydown", this._handleKeyDown);
     document.addEventListener("keyup", this._handleKeyUp);
-    // // this.myRef.current.addEventListener("mousedown", this._handleMouseDown);
-    // this.myRef.current.addEventListener("mouseup", this._handleMouseUp);
-    // this.myRef.current.addEventListener("mousever", (e) => {
-    //   if (e.target.className.split(" ").includes("grid-cell") && this.state.mouseDown) {
-    //     if (this)
-    //   }
-    // });
-    // this.myRef.current.addEventListener("mousedown", (e) => {
-    //   if (e.target.className.split(" ").includes("grid-cell")) {
-    //     console.log(e.target, 't');
-    //     this.setState({mouseDown: true})
-    //   }
-    // });
-    // this.myRef.current.removeEventListener("mouseup", this._handleMouseUp);
+    document.addEventListener("mouseup", () => {
+      if (this.state.mouseDown) this.setState({ mouseDown: false });
+    });
   };
   componentWillUnmount = () => {
     document.removeEventListener("keydown", this._handleKeyDown);
@@ -557,24 +546,44 @@ class App extends Component {
   };
 
   setAdding = ({ row, col, turnOff }) => {
-    console.log("this.setAdding", row, col);
-    if (turnOff)
+    // console.log("this.setAdding", row, col);
+    if (turnOff) {
+      // console.log("this.setAdding return");
       return this.setState({
         addingWall: false,
         mouseDown: false,
         weightKey: false,
         movingTarget: false,
-        movingObstacle: false
+        movingObstacle: false,
+        movingStart: false,
       });
+    }
     let gridTable = this.state.gridTable.slice(0);
     if (gridTable[row][col].isTarget) {
-      this.setState({ movingTarget: true, target: { col, row }, mouseDown: true });
-      console.log( 'movingTarget')
+      this.setState({
+        movingTarget: true,
+        target: { col, row },
+        mouseDown: true,
+      });
+      // console.log("movingTarget");
       return;
     }
     if (gridTable[row][col].isObstacle) {
-      this.setState({ movingObstacle: true, obstacleCell: { col, row }, mouseDown: true });
-      console.log( 'movingObstacle')
+      this.setState({
+        movingObstacle: true,
+        obstacleCell: { col, row },
+        mouseDown: true,
+      });
+      // console.log("movingObstacle");
+      return;
+    }
+    if (gridTable[row][col].isStart) {
+      this.setState({
+        movingStart: true,
+        startCell: { col, row },
+        mouseDown: true,
+      });
+      // console.log("movingStart");
       return;
     }
     let addingWall =
@@ -582,38 +591,63 @@ class App extends Component {
     gridTable[row][col][this.state.weightKey ? "isWeight" : "isWall"] =
       addingWall;
     this.setState({ addingWall, gridTable, mouseDown: true });
-    console.log(this.state.addingWall, "aw");
+    // console.log(this.state.addingWall, "aw");
   };
 
   setWall = ({ row, col }) => {
     if (!this.state.mouseDown) return;
     const gridTable = this.state.gridTable.slice(0),
       target = { ...this.state.target },
+      startCell = { ...this.state.startCell },
       obstacleCell = this.state.obstacleCell;
-    if (this.state.movingTarget) {
-      console.log('movingt')
+    if (
+      !(
+        this.state.mouseDown &&
+        (target.col || obstacleCell.col || startCell.col)
+      )
+    ) {
+      // console.log("return");
+      return;
+    }
+
+    const clearCell = (r, c) => {
+      ["isStart", "isWall", "isWeight", "isTarget", "isObstacle"].forEach(
+        (t) => (gridTable[r][c][t] = false)
+      );
+    };
+    if (
+      this.state.movingTarget &&
+      !(target.row === row && target.col === col)
+    ) {
+      // console.log("movingt");
+      clearCell(target.row, target.col);
       gridTable[row][col].isTarget = true;
-      gridTable[row][col].isWall = false;
-      gridTable[row][col].isWeight = false;
-      gridTable[row][col].isObstacle = false;
-      if (target.row) gridTable[target.row][target.col].isTarget = false;
       return this.setState({ gridTable, target: { col, row } });
     }
-    if (this.state.movingObstacle) {
-      console.log('movingobt')
+    if (
+      this.state.movingObstacle &&
+      !(obstacleCell.row === row && obstacleCell.col === col)
+    ) {
+      clearCell(obstacleCell.row, obstacleCell.col);
       gridTable[row][col].isObstacle = true;
-      gridTable[row][col].isWall = false;
-      gridTable[row][col].isWeight = false;
-      gridTable[row][col].isTarget = false;
-      if (obstacleCell.row) gridTable[obstacleCell.row][obstacleCell.col].isObstacle = false;
       return this.setState({ gridTable, obstacleCell: { col, row } });
+    }
+    if (
+      this.state.movingStart &&
+      !(startCell.row === row && startCell.col === col)
+    ) {
+      // console.log("movingstart");
+      clearCell(startCell.row, startCell.col);
+      gridTable[row][col].isStart = true;
+      // // console.log("mo");
+      return this.setState({ gridTable, startCell: { col, row } });
     }
     gridTable[row][col][this.state.weightKey ? "isWeight" : "isWall"] =
       this.state.addingWall;
     if (this.state.weightKey) gridTable[row][col].isWall = false;
     if (gridTable[row][col].isWall) gridTable[row][col].isWeight = false;
     if (gridTable[row][col].isWeight) gridTable[row][col].isWall = false;
-    console.log("aw", row, col, gridTable[row][col]);
+    // console.log("aw", row, col, gridTable[row][col]);
     this.setState({ gridTable });
     // }
   };
@@ -684,10 +718,17 @@ class App extends Component {
                     let wall = !start && !end && mouseDown && !weightKey;
                     let weight = !start && !end && mouseDown && weightKey;
 
+                    // const columnClass = `grid-cell${
+                    //   obstacle && node.isObstacle ? " obstacle" : ""
+                    // } ${start ? " start" : ""} ${
+                    //   node.isTarget ? " target" : ""
+                    // } ${node.isWall ? " wall" : ""} ${
+                    //   node.isWeight ? " weight" : ""
+                    // }`;
                     const columnClass = `grid-cell${
                       obstacle && node.isObstacle
                         ? " obstacle"
-                        : start
+                        : node.isStart
                         ? " start"
                         : node.isTarget
                         ? " target"
